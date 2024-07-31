@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "so.service1";
+package service1;
+
+// Air Quality Control Service
+service AirQualityControl 
+{
+  rpc SetAirQual (AirQualRequest) returns (AirQualResponse);
+  rpc GetAirQual (AirQualRequest) returns (AirQualResponse);
+}
+
+message AirQualRequest 
+{
+  string operationType = 1;
+  int32 ventilationLevel = 2; //Used for SetAirQual
+}
+
+message AirQualResponse 
+{
+  int32 currentAirQuality = 1;
+  string newVentilationLevel = 2; //Confirming the newly set office ventilation level
+}
+
+// Temperature Control Service
+service TempControl 
+{
+  rpc SetTemp (TempRequest) returns (TempResponse);
+  rpc GetTemp (TempRequest) returns (TempResponse);
+}
+
+message TempRequest 
+{
+  string operationType = 1; 
+  float tempLevel = 2; //Used for SetTemp
+}
+
+message TempResponse 
+{
+  float currentTemp = 1; //Current Office Temp
+  string newTempLevel = 2; //Confirming the newly set office temperature
+}
+
+// Lighting Control Service
+service LightingControl 
+{
+  rpc SetLighting (LightingRequest) returns (LightingResponse);
+}
+
+message LightingRequest 
+{
+  int32 lightingLevel = 1; //Used for lighting level
+}
+
+message LightingResponse 
+{
+  string newLightingLevel = 1; //Confirming the newly set office lighting level
+}
