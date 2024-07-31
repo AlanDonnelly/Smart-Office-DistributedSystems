@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "so.service2";
+option java_outer_classname = "Service2Impl";
+package service2;
+
+//Camera Control Service
+service CameraControl 
+{
+  rpc MonitorCamera (CameraRequest) returns (stream CameraFeed); //Live video feed from security camera
+}
+
+message CameraRequest 
+{
+  int32 monitorCamera = 1; //Camera ID to monitor
+}
+
+message CameraFeed 
+{
+  bytes cameraFeed = 1; //Live video feed (bytes stream)
+}
+
+//Door Control Service
+service DoorControl 
+{
+  rpc ControlDoor (DoorRequest) returns (DoorResponse);
+}
+
+message DoorRequest 
+{
+  string operationType = 1; //"lockDoor" or "unlockDoor"
+  int32 doorNumber = 2; //Door number to lock or unlock
+}
+
+message DoorResponse 
+{
+  string currentDoorState = 1; //Current state, locked or unlocked
+  string newDoorState = 2; //New state of the door after the operation
+}
+
+//Alarm Control Service
+service AlarmControl 
+{
+  rpc ControlAlarm (AlarmRequest) returns (AlarmResponse);
+}
+
+message AlarmRequest {
+  string operationType = 1; //"startAlarm" or "stopAlarm"
+  int32 alarmNumber = 2; //Alarm number to start or stop
+}
+
+message AlarmResponse 
+{
+  string currentAlarmState = 1; //Current alarm state
+  string newAlarmState = 2; //New state of alarm after the operation
+}
