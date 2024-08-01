@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "so.service3";
+option java_outer_classname = "Service3Impl";
+package service3;
+
+//Whiteboard Creation Service
+service WhiteboardCreation 
+{
+  rpc CreateWhiteboard (CreateWhiteboardRequest) returns (CreateWhiteboardResponse);
+}
+
+message CreateWhiteboardRequest 
+{
+  string newWhiteboard = 1; //Give the whiteboard a title
+}
+
+message CreateWhiteboardResponse 
+{
+  string whiteboardName = 1; //Confirmation of the title beign set
+}
+
+//Whiteboard Content Service
+service WhiteboardContent 
+{
+  rpc AddContent (AddContentRequest) returns (AddContentResponse);
+}
+
+message AddContentRequest 
+{
+  string whiteboardName = 1; //Name of the whiteboard content to be added
+  string addContent = 2;     //Add content to whiteboard
+}
+
+message AddContentResponse 
+{
+  string newWhiteboardContent = 1; //Confirmation that new content was added
+}
+
+//Whiteboard Stream Service
+service WhiteboardStream 
+{
+  rpc WhiteboardStream (stream WhiteboardUpdate) returns (stream WhiteboardUpdate); //Bidirectional stream for updates
+}
+
+message WhiteboardUpdate 
+{
+  string whiteboardName = 1;  //Name of the whiteboard
+  string content = 2;        //Content update
+}
