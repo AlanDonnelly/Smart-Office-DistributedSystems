@@ -10,10 +10,13 @@ import javax.swing.JPanel;
 import javax.swing.BoxLayout;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
 
 import so.service3.PanelService3;
 import so.service3.WhiteboardCreationGrpc;
@@ -22,15 +25,27 @@ import so.service3.CreateWhiteboardResponse;
 import so.service3.WhiteboardContentGrpc;
 import so.service3.AddContentRequest;
 import so.service3.AddContentResponse;
+import so.service3.WhiteboardStreamGrpc;
+import so.service3.WhiteboardUpdate;
 
 public class SmartOfficeController implements ActionListener 
 {
 
     private PanelService3 panelService3;
+    private ManagedChannel channel;
+    private String currentWhiteboardName;
+    private String currentContent;
+    private WhiteboardStreamGrpc.WhiteboardStreamStub streamStub;
+    private StreamObserver<WhiteboardUpdate> requestObserver;
+    private Thread streamingThread;
 
-    public SmartOfficeController() 
-    {
+    public SmartOfficeController() {
         panelService3 = new PanelService3();
+        channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+                .usePlaintext()
+                .build();
+        streamStub = WhiteboardStreamGrpc.newStub(channel);
+        panelService3.setStreamStub(streamStub);
     }
 
     public static void main(String[] args) 
@@ -67,11 +82,6 @@ public class SmartOfficeController implements ActionListener
         if (label.equals("CREATE_WHITEBOARD")) //Checking if Create Whiteboard button is pressed
         {
             System.out.println("Creating whiteboard..."); //Terminal message to say that whiteboard is being created
-
-            ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051) //Create and connect a ManagedChannel to connect to appropriate port on server
-                    .usePlaintext() //Allows local development
-                    .build();
-
             WhiteboardCreationGrpc.WhiteboardCreationBlockingStub blockingStub = WhiteboardCreationGrpc.newBlockingStub(channel); //Creating a blocking stub
 
             //Prepping message for sending
@@ -91,31 +101,10 @@ public class SmartOfficeController implements ActionListener
                 System.err.println("RPC failed: " + ex.getStatus());
                 panelService3.getWhiteboardReply().setText("Error: " + ex.getStatus().toString());
             } 
-            finally 
-            {
-                channel.shutdownNow(); //Shutdown managedchannel
-                try 
-                {
-                    if (!channel.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) //Allow time for channel termination
-                    {
-                        System.err.println("Channel did not terminate in the specified time.");
-                    }
-                } 
-                catch (InterruptedException e1) //Handle any disruption while channel attempts to terminate
-                {
-                    System.err.println("Interrupted while waiting for channel to terminate: " + e1.getMessage());
-                    Thread.currentThread().interrupt();
-                }
-            }
-        } 
+        }           
         else if (label.equals("ADD_CONTENT")) //Checking if Add Content button is pressed
         {
             System.out.println("Adding content..."); //Terminal message to say that if content has been added
-
-            ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50052) //Create and connect a ManagedChannel to connect to appropriate port on server
-                    .usePlaintext() //Allows local development
-                    .build();
-
             WhiteboardContentGrpc.WhiteboardContentBlockingStub blockingStub = WhiteboardContentGrpc.newBlockingStub(channel); //Creating a blocking stub
 
             //Prepping message for sending
@@ -130,28 +119,101 @@ public class SmartOfficeController implements ActionListener
                 AddContentResponse response = blockingStub.addContent(request);
                 panelService3.getContentReply().setText("Content Added: " + response.getNewWhiteboardContent()); //Display the response in GUI
                 System.out.println("Content Added: " + response.getNewWhiteboardContent()); //Display the response in terminal
+
+                //Track the current whiteboard name and content
+                String whiteboardName = request.getWhiteboardName();
+                String content = request.getAddContent();
+                
+                //Update the tracked state (assuming these are instance variables)
+                currentWhiteboardName = whiteboardName;
+                currentContent = content;
             }  
             catch (StatusRuntimeException ex) //Managing RPC call errors
             {
                 System.err.println("RPC failed: " + ex.getStatus());
                 panelService3.getContentReply().setText("Error: " + ex.getStatus().toString());
             } 
-            finally 
+            
+        }
+
+        else if (label.equals("START_STREAMING")) 
+        {
+            System.out.println("Starting streaming...");     
+            WhiteboardStreamGrpc.WhiteboardStreamStub streamStub = WhiteboardStreamGrpc.newStub(channel); //Creating a streaming stub
+        
+            //Check if streamStub is initialized
+            if (requestObserver == null) 
             {
-                channel.shutdownNow(); //Shutdown managedchannel
-                try 
+                System.out.println("Initializing streaming stub...");
+                requestObserver = streamStub.whiteboardStream(new StreamObserver<WhiteboardUpdate>() 
                 {
-                    if (!channel.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) //Allow time for channel termination
+                    @Override
+                    public void onNext(WhiteboardUpdate value) 
                     {
-                        System.err.println("Channel did not terminate in the specified time.");
+                        String updateText = "Received update: " + value.getWhiteboardName() + " - " + value.getContent();
+                        System.out.println(updateText);
+        
+                        SwingUtilities.invokeLater(() -> //Update GUI on EDT
+                        {
+                            //Update to the streaming panel
+                            panelService3.getStreamingUpdatesArea().append(updateText + "\n");
+                        });
                     }
-                } 
-                catch (InterruptedException e1) //Handle any disruption while channel attempts to terminate
+        
+                    @Override
+                    public void onError(Throwable t) 
+                    {
+                        System.err.println("Streaming error: " + t.getMessage());
+                        SwingUtilities.invokeLater(() -> 
+                        {
+                            //If there's an error update the GUI to show the error
+                            panelService3.getStreamingUpdatesArea().append("Streaming error: " + t.getMessage() + "\n");
+                        });
+                    }
+        
+                    @Override
+                    public void onCompleted() 
+                    {
+                        System.out.println("Streaming completed.");
+                    }
+                });
+                System.out.println("Stream stub initialized.");
+            } 
+                
+            
+            streamingThread = new Thread(() -> //Send updates based on the stored whiteboard name and content
+            {
+                while (requestObserver != null) 
                 {
-                    System.err.println("Interrupted while waiting for channel to terminate: " + e1.getMessage());
-                    Thread.currentThread().interrupt();
+                    try 
+                    {
+                        if (currentWhiteboardName != null && currentContent != null) 
+                        {
+                            WhiteboardUpdate update = WhiteboardUpdate.newBuilder()
+                                    .setWhiteboardName(currentWhiteboardName)
+                                    .setContent(currentContent)
+                                    .build();
+        
+                            requestObserver.onNext(update);
+                            Thread.sleep(3000); //Set interval time
+                        }
+                    } 
+                    catch (InterruptedException ie) 
+                    {
+                        Thread.currentThread().interrupt();
+                        if (requestObserver != null) // Ensure requestObserver is not null before calling onError
+                        {
+                            requestObserver.onError(ie);
+                        }
+                        break;
+                    }
                 }
-            }
+            });
+            streamingThread.start();
+        } 
+        else 
+        {
+        System.out.println("Unknown action command: " + label);
         }
     }
 }
