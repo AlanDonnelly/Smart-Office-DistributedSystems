@@ -2,7 +2,7 @@ package so;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-
+import so.service3.WhiteboardContentImpl;
 import so.service3.WhiteboardCreationImpl;
 
 import java.io.IOException;
@@ -15,22 +15,30 @@ public class SmartOfficeServer
 
     public static void main(String[] args) 
     {
-        int port = 50051; //Listening port number
+        int portWhiteboardCreation = 50051; //Port: WhiteboardCreation
+        int portWhiteboardContent = 50052;  //Port: WhiteboardContent
 
         try 
         {
-            
-            Server server = ServerBuilder.forPort(port) //Creating and starting the server
-                
-                .addService(new WhiteboardCreationImpl()) //Adding the WhiteboardCreation service implementation
-                
+        //Service 3:
+
+            //Whiteboard Creation
+            Server whiteboardCreationServer = ServerBuilder.forPort(portWhiteboardCreation) //Creating and starting the server                
+                .addService(new WhiteboardCreationImpl()) //Adding the WhiteboardCreation service implementation                
                 .build() //Build the server
                 .start(); //Start the server
+            logger.info("Server started, listening on " + portWhiteboardCreation); //Confirmation message to show server is running
 
-            logger.info("Server started, listening on " + port); //Confirmation message to show server is running
+            //Whiteboard Content
+            Server whiteboardContentServer  = ServerBuilder.forPort(portWhiteboardContent) //Creating and starting the server                
+                .addService(new WhiteboardContentImpl()) //Adding the WhiteboardContent service implementation                
+                .build() //Build the server
+                .start(); //Start the server
+            logger.info("Server started, listening on " + portWhiteboardContent); //Confirmation message to show server is running
 
            
-            server.awaitTermination(); //Run server until terminated
+            whiteboardCreationServer.awaitTermination(); //Run server until terminated
+            whiteboardContentServer.awaitTermination(); 
         } 
         catch (IOException | InterruptedException e) 
         {

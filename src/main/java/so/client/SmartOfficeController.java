@@ -1,16 +1,13 @@
 package so.client;
 
-import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.BoxLayout;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
@@ -18,40 +15,22 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
+import so.service3.PanelService3;
 import so.service3.WhiteboardCreationGrpc;
 import so.service3.CreateWhiteboardRequest;
 import so.service3.CreateWhiteboardResponse;
+import so.service3.WhiteboardContentGrpc;
+import so.service3.AddContentRequest;
+import so.service3.AddContentResponse;
 
 public class SmartOfficeController implements ActionListener 
 {
 
-    private JTextField entryField, replyField; //Request and response text fields
+    private PanelService3 panelService3;
 
-    private JPanel getWhiteboardJPanel() //Creating a panel for whiteboard creation
+    public SmartOfficeController() 
     {
-        JPanel panel = new JPanel();
-
-        BoxLayout boxlayout = new BoxLayout(panel, BoxLayout.X_AXIS); //Component horizontal axis setup
-
-        JLabel label = new JLabel("Enter a Whiteboard Title:"); //Labling to show user to input a whiteboard title
-        panel.add(label);
-        panel.add(Box.createRigidArea(new Dimension(10, 0)));
-        entryField = new JTextField("", 10); //Text field to enter title
-        panel.add(entryField);
-        panel.add(Box.createRigidArea(new Dimension(10, 0)));
-
-        JButton button = new JButton("Create Whiteboard"); //Button to create whiteboard
-        button.addActionListener(this);
-        panel.add(button);
-        panel.add(Box.createRigidArea(new Dimension(10, 0)));
-
-        replyField = new JTextField("", 20); //Reply field to show the Whiteboard title when create
-        replyField.setEditable(false); //Block editing capabilities
-        panel.add(replyField);
-
-        panel.setLayout(boxlayout);
-
-        return panel;
+        panelService3 = new PanelService3();
     }
 
     public static void main(String[] args) 
@@ -62,18 +41,18 @@ public class SmartOfficeController implements ActionListener
 
     private void build() 
     {
-        JFrame frame = new JFrame("Whiteboard Creation Service Controller");
+        JFrame frame = new JFrame("Whiteboard Service Controller");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel panel = new JPanel(); //Setting up the panel to hold the UI components
         BoxLayout boxlayout = new BoxLayout(panel, BoxLayout.Y_AXIS); //Creating the vertical axis layout for the components
         panel.setLayout(boxlayout);
 
-        panel.setBorder(new EmptyBorder(new Insets(50, 100, 50, 100))); //Create a boarder for the panel
+        panel.setBorder(new EmptyBorder(new Insets(50, 100, 50, 100))); //Create a border for the panel
 
-        panel.add(getWhiteboardJPanel()); //Add whiteboard to main panel
+        panel.add(panelService3.createPanel(this)); //Pass "this" as ActionListener
 
-        frame.setSize(400, 150); //Frame size set
+        frame.setSize(500, 300); //Adjust frame size as needed
         frame.add(panel); //Add main panel to frame
         frame.pack(); //Use content to determine the frame size
         frame.setVisible(true); //Make it visible
@@ -85,11 +64,11 @@ public class SmartOfficeController implements ActionListener
         JButton button = (JButton) e.getSource();
         String label = button.getActionCommand();
 
-        if (label.equals("Create Whiteboard")) //Checking if button is pressed
+        if (label.equals("CREATE_WHITEBOARD")) //Checking if Create Whiteboard button is pressed
         {
             System.out.println("Creating whiteboard..."); //Terminal message to say that whiteboard is being created
 
-            ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051) //Create and connect a ManagedChannel to connect to server
+            ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051) //Create and connect a ManagedChannel to connect to appropriate port on server
                     .usePlaintext() //Allows local development
                     .build();
 
@@ -97,20 +76,20 @@ public class SmartOfficeController implements ActionListener
 
             //Prepping message for sending
             CreateWhiteboardRequest request = CreateWhiteboardRequest.newBuilder()
-                    .setNewWhiteboard(entryField.getText())
+                    .setNewWhiteboard(panelService3.getWhiteboardTitle().getText())
                     .build();
 
             try 
             {
                 //Send request and pull the reply from the service
                 CreateWhiteboardResponse response = blockingStub.createWhiteboard(request);
-                replyField.setText("Created: " + response.getWhiteboardName()); //Display the response in GUI
+                panelService3.getWhiteboardReply().setText("Created: " + response.getWhiteboardName()); //Display the response in GUI
                 System.out.println("Created: " + response.getWhiteboardName()); //Display the response in terminal
             } 
-            catch (StatusRuntimeException ex)  //Managing RPC call errors
+            catch (StatusRuntimeException ex) //Managing RPC call errors
             {
                 System.err.println("RPC failed: " + ex.getStatus());
-                replyField.setText("Error: " + ex.getStatus().toString());
+                panelService3.getWhiteboardReply().setText("Error: " + ex.getStatus().toString());
             } 
             finally 
             {
@@ -122,7 +101,52 @@ public class SmartOfficeController implements ActionListener
                         System.err.println("Channel did not terminate in the specified time.");
                     }
                 } 
-                catch (InterruptedException e1) // Handle any disruption while channel attempts to terminate
+                catch (InterruptedException e1) //Handle any disruption while channel attempts to terminate
+                {
+                    System.err.println("Interrupted while waiting for channel to terminate: " + e1.getMessage());
+                    Thread.currentThread().interrupt();
+                }
+            }
+        } 
+        else if (label.equals("ADD_CONTENT")) //Checking if Add Content button is pressed
+        {
+            System.out.println("Adding content..."); //Terminal message to say that if content has been added
+
+            ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50052) //Create and connect a ManagedChannel to connect to appropriate port on server
+                    .usePlaintext() //Allows local development
+                    .build();
+
+            WhiteboardContentGrpc.WhiteboardContentBlockingStub blockingStub = WhiteboardContentGrpc.newBlockingStub(channel); //Creating a blocking stub
+
+            //Prepping message for sending
+            AddContentRequest request = AddContentRequest.newBuilder()
+                    .setWhiteboardName(panelService3.getContentTitle().getText())
+                    .setAddContent(panelService3.getAddContent().getText())
+                    .build();
+
+            try 
+            {
+                //Send request and pull the reply from the service
+                AddContentResponse response = blockingStub.addContent(request);
+                panelService3.getContentReply().setText("Content Added: " + response.getNewWhiteboardContent()); //Display the response in GUI
+                System.out.println("Content Added: " + response.getNewWhiteboardContent()); //Display the response in terminal
+            }  
+            catch (StatusRuntimeException ex) //Managing RPC call errors
+            {
+                System.err.println("RPC failed: " + ex.getStatus());
+                panelService3.getContentReply().setText("Error: " + ex.getStatus().toString());
+            } 
+            finally 
+            {
+                channel.shutdownNow(); //Shutdown managedchannel
+                try 
+                {
+                    if (!channel.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) //Allow time for channel termination
+                    {
+                        System.err.println("Channel did not terminate in the specified time.");
+                    }
+                } 
+                catch (InterruptedException e1) //Handle any disruption while channel attempts to terminate
                 {
                     System.err.println("Interrupted while waiting for channel to terminate: " + e1.getMessage());
                     Thread.currentThread().interrupt();
