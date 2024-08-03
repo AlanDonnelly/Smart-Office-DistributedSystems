@@ -6,7 +6,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.Box;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class PanelService1 
@@ -33,6 +33,12 @@ public class PanelService1
     {
         JPanel panel = new JPanel();
         BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        panel.setLayout(boxLayout);
+        
+        JLabel titleLabel = new JLabel("ENVIRONMENT SYSTEM"); //Labeling the Service Panel
+        titleLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT); //Centering the label
+        panel.add(titleLabel);
+        panel.add(Box.createRigidArea(new Dimension(0, 20))); //Adding space below the lable 
 
         // Air Quality Control Panel
         JPanel airQualPanel = new JPanel();        
@@ -98,19 +104,20 @@ public class PanelService1
 
         lightingReplyField = new JTextField("", 20);
         lightingReplyField.setEditable(false);
-        lightingPanel.add(lightingReplyField);
+        lightingPanel.add(lightingReplyField);        
 
-        //Back button
+        //Creating a panel for the back button and centering it
+        JPanel backButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         backButton = new JButton("Back to Main Menu");
         backButton.setActionCommand("BACK_TO_MAIN_MENU");
         backButton.addActionListener(listener);
-        tempPanel.add(backButton);
+        backButtonPanel.add(backButton);
 
         //Add panels to main panel
         panel.add(airQualPanel);
         panel.add(tempPanel);
-        panel.add(lightingPanel);
-        panel.setLayout(boxLayout);
+        panel.add(lightingPanel);          
+        panel.add(backButtonPanel); 
 
         return panel;
     }

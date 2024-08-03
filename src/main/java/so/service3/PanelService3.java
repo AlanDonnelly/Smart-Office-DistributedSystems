@@ -1,7 +1,5 @@
 package so.service3;
 
-import java.awt.Dimension;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -12,7 +10,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
+import java.awt.*;
 import java.awt.event.ActionListener;
 
 import io.grpc.stub.StreamObserver;
@@ -34,7 +32,13 @@ public class PanelService3
     public JPanel createPanel(ActionListener listener) //Service 3 Panel
     {
         JPanel panel = new JPanel(); 
-        BoxLayout boxlayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+        panel.setLayout(boxLayout);
+
+        JLabel titleLabel = new JLabel("WHITEBOARD SYSTEM"); //Labeling the Service Panel
+        titleLabel.setAlignmentX(JLabel.CENTER_ALIGNMENT); //Centering the label
+        panel.add(titleLabel);
+        panel.add(Box.createRigidArea(new Dimension(0, 20))); //Adding space below the lable 
 
         //Whiteboard Creation Panel
         JPanel whiteboardPanel = new JPanel();
@@ -108,11 +112,12 @@ public class PanelService3
         streamPanel.setLayout(streamLayout);
 
         
-        //Back button
+        //Creating a panel for the back button and centering it
+        JPanel backButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         backButton = new JButton("Back to Main Menu");
         backButton.setActionCommand("BACK_TO_MAIN_MENU");
         backButton.addActionListener(listener);
-        streamPanel.add(backButton);
+        backButtonPanel.add(backButton);
 
         //Combining the Panels
         panel.add(whiteboardPanel);
@@ -120,8 +125,8 @@ public class PanelService3
         panel.add(contentPanel);
         panel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between panels
         panel.add(streamPanel);
+        panel.add(backButtonPanel); 
 
-        panel.setLayout(boxlayout);
         return panel;
     }
 
