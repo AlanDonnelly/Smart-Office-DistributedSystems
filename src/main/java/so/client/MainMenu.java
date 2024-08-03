@@ -14,7 +14,7 @@ public class MainMenu
     {
         JOptionPane.showMessageDialog(null, "Welcome to your Smart Office");
         JOptionPane.showMessageDialog(null, "Select the service you wish to manage");
-        String[] options = {"Environment System", "Security System", "Whiteboard System"};
+        String[] options = {"Environment System", "Security System", "Whiteboard System", "Close"};
         int choice = JOptionPane.showOptionDialog(null, "SMART OFFICE SERVICE MENU",
                 "Main Menu",
                 JOptionPane.DEFAULT_OPTION,
@@ -50,9 +50,16 @@ public class MainMenu
                     controller.build();
                 });
                 break;
+            case 3:
+                // Close the application
+                JOptionPane.showMessageDialog(null, "Shutting Down");
+                System.out.println("Shutting Down");
+                System.exit(0);
+                break;
             default:
                 System.out.println("No valid option selected.");
                 break;
+                
         }
     }
 }

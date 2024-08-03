@@ -17,10 +17,16 @@ public class PanelService1
     private JTextField airQualReplyField;
     private JTextField tempLevelField;
     private JTextField tempReplyField;
+    private JTextField lightingLevelField;
+    private JTextField lightingReplyField;
+
     private JButton setAirQualButton;
     private JButton getAirQualButton;
     private JButton setTempButton;
     private JButton getTempButton;
+    private JButton setLightingButton;
+    
+
     private JButton backButton; 
 
     public JPanel createPanel(ActionListener listener) 
@@ -29,8 +35,7 @@ public class PanelService1
         BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS);
 
         // Air Quality Control Panel
-        JPanel airQualPanel = new JPanel();
-        BoxLayout airQualLayout = new BoxLayout(airQualPanel, BoxLayout.X_AXIS);
+        JPanel airQualPanel = new JPanel();        
 
         JLabel ventilationLevelLabel = new JLabel("Ventilation Level (1-10):");
         airQualPanel.add(ventilationLevelLabel);
@@ -54,8 +59,7 @@ public class PanelService1
         airQualPanel.add(airQualReplyField);
 
         //Temperature Control Panel
-        JPanel tempPanel = new JPanel();
-        BoxLayout tempLayout = new BoxLayout(tempPanel, BoxLayout.X_AXIS);
+        JPanel tempPanel = new JPanel();        
 
         JLabel tempLevelLabel = new JLabel("Temperature Level (15-100):");
         tempPanel.add(tempLevelLabel);
@@ -78,6 +82,24 @@ public class PanelService1
         tempReplyField.setEditable(false);
         tempPanel.add(tempReplyField);
 
+        //Lighting Control Panel
+        JPanel lightingPanel = new JPanel();
+        JLabel lightingLevelLabel = new JLabel("Lighting Level (1-10):");
+        lightingPanel.add(lightingLevelLabel);
+        lightingPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        lightingLevelField = new JTextField("", 10);
+        lightingPanel.add(lightingLevelField);
+        lightingPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+
+        setLightingButton = new JButton("Set Lighting");
+        setLightingButton.setActionCommand("SET_LIGHTING");
+        setLightingButton.addActionListener(listener);
+        lightingPanel.add(setLightingButton);
+
+        lightingReplyField = new JTextField("", 20);
+        lightingReplyField.setEditable(false);
+        lightingPanel.add(lightingReplyField);
+
         //Back button
         backButton = new JButton("Back to Main Menu");
         backButton.setActionCommand("BACK_TO_MAIN_MENU");
@@ -87,6 +109,7 @@ public class PanelService1
         //Add panels to main panel
         panel.add(airQualPanel);
         panel.add(tempPanel);
+        panel.add(lightingPanel);
         panel.setLayout(boxLayout);
 
         return panel;
@@ -101,14 +124,14 @@ public class PanelService1
     public int getVentilationLevel() {
         try {
             int level = Integer.parseInt(ventilationLevelField.getText());
-            // Ensure ventilation level is between 1 and 10
+            //Ensure ventilation level is between 1 and 10
             if (level < 1 || level > 10) {
                 throw new NumberFormatException("Ventilation level must be between 1 and 10.");
             }
             return level;
         } catch (NumberFormatException e) {
             System.err.println("Invalid ventilation level input. " + e.getMessage());
-            return 1; // Default value or handle as needed
+            return 1; //Default value or handle as needed
         }
     }
 
@@ -127,17 +150,24 @@ public class PanelService1
         return getAirQualButton;
     }
 
-    public float getTempLevel() {
-        try {
+    //TemperatureControls Getters
+
+    public float getTempLevel() 
+    {
+        try 
+        {
             float level = Float.parseFloat(tempLevelField.getText());
-            // Ensure temperature level is between 15 and 100
-            if (level < 15.0f || level > 100.0f) {
+            //Ensure temperature level is between 15 and 100
+            if (level < 15.0f || level > 100.0f) 
+            {
                 throw new NumberFormatException("Temperature level must be between 15 and 100.");
             }
             return level;
-        } catch (NumberFormatException e) {
+        } 
+        catch (NumberFormatException e) 
+        {
             System.err.println("Invalid temperature level input. " + e.getMessage());
-            return 30.0f; // Default value or handle as needed
+            return 30.0f; //Default 
         }
     }
 
@@ -152,4 +182,33 @@ public class PanelService1
     public JButton getGetTempButton() {
         return getTempButton;
     }
+
+//LightingControl Getters
+    public int getLightingLevel() 
+    {
+        try 
+        {
+            int level = Integer.parseInt(lightingLevelField.getText());
+            //Ensure lighting level is between 1 and 10
+            if (level < 1 || level > 10) 
+            {
+                throw new NumberFormatException("Lighting level must be between 1 and 10, setting to 1");
+            }
+            return level;
+        } 
+        catch (NumberFormatException e) 
+        {
+            System.err.println("Invalid lighting level input. " + e.getMessage());
+            return 1; //Default value
+        }
+    }
+
+    public JTextField getLightingReplyField() {
+        return lightingReplyField;
+    }
+
+    public JButton getSetLightingButton() {
+        return setLightingButton;
+    }
 }
+

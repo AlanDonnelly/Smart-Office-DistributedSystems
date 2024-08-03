@@ -69,8 +69,8 @@ public class SmartOfficeController1 implements ActionListener
             case "GET_TEMP": 
                 handleTempControl(false); //False will 'GET'
                 break;
-            case "LIGHTING_CONTROL":
-                handleLightingControl();
+            case "SET_LIGHTING":
+                handleLightingControl(); //Set the lighting level
                 break;
             default:
                 System.out.println("Unknown action command: " + label);
@@ -169,6 +169,28 @@ public class SmartOfficeController1 implements ActionListener
 
     private void handleLightingControl() 
     {
-        System.out.println("Service 1 Lighting Control");     
+        int lightingLevel = panelService1.getLightingLevel(); //Get the current lighting level from panelService(UI)
+    
+        LightingRequest request = LightingRequest.newBuilder() //Build the request object with the lighting level to be set
+                .setLightingLevel(lightingLevel) //Set the lighting level
+                .build(); //Build the request object
+
+        //Create a blocking stub to communicate with the gRPC server for lighting control
+        LightingControlGrpc.LightingControlBlockingStub blockingStub = LightingControlGrpc.newBlockingStub(channel);
+        LightingResponse response;
+    
+        try 
+        {
+            response = blockingStub.setLighting(request);
+            panelService1.getLightingReplyField().setText("New Lighting Level: " + response.getNewLightingLevel()); //Update UI to reflect the lighting level
+        } 
+        catch (StatusRuntimeException ex) 
+        {
+            System.err.println("RPC failed: " + ex.getStatus());
+        }
     }
+    
+    
 }
+    
+
