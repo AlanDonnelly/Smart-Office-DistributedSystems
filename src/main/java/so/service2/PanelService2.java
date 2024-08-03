@@ -13,13 +13,19 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-import io.grpc.stub.StreamObserver;
+import so.service2.DoorControlGrpc;
 import so.service2.AlarmControlGrpc;
-import so.service3.WhiteboardStreamGrpc;
+
 
 public class PanelService2 
 {
 
+    //Door Control Components
+    private JTextField doorOperationTypeField;
+    private JTextField doorNumberField;
+    private JButton sendDoorRequestButton;
+    private JTextArea doorControlOutputArea;
+    //Alarm Control Components
     private JTextField operationTypeField;
     private JTextField alarmNumberField;   
     private JButton sendAlarmRequestButton;
@@ -40,16 +46,37 @@ public class PanelService2
         //Camera Control
         
 
-        //Door Control
+        //Door Control Panel
+        JPanel doorControlPanel = new JPanel();
+        doorControlPanel.setLayout(new BoxLayout(doorControlPanel, BoxLayout.Y_AXIS));
+
+        doorOperationTypeField = new JTextField(5);
+        doorNumberField = new JTextField(5);
+        doorControlOutputArea = new JTextArea(2, 2);
+        doorControlOutputArea.setEditable(false);
+        JScrollPane doorScrollPane = new JScrollPane(doorControlOutputArea);
+
+        doorControlPanel.add(new JLabel("Operation Type (lockDoor/unlockDoor):"));
+        doorControlPanel.add(doorOperationTypeField);
+        doorControlPanel.add(new JLabel("Door Number:"));
+        doorControlPanel.add(doorNumberField);
+        doorControlPanel.add(new JLabel("Response:"));
+        doorControlPanel.add(doorScrollPane);
+
+        sendDoorRequestButton = new JButton("Control Doors");
+        sendDoorRequestButton.setActionCommand("DOOR_CONTROL");
+        sendDoorRequestButton.addActionListener(listener);
+        doorControlPanel.add(sendDoorRequestButton);
+        doorControlPanel.add(Box.createRigidArea(new Dimension(0, 20)));
        
 
         // Alarm Control Panel
         JPanel alarmControlPanel = new JPanel();
         alarmControlPanel.setLayout(new BoxLayout(alarmControlPanel, BoxLayout.Y_AXIS));
 
-        operationTypeField = new JTextField(10);
-        alarmNumberField = new JTextField(10);
-        alarmControlOutputArea = new JTextArea(5, 20);
+        operationTypeField = new JTextField(5);
+        alarmNumberField = new JTextField(5);
+        alarmControlOutputArea = new JTextArea(2, 2);
         alarmControlOutputArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(alarmControlOutputArea);
 
@@ -60,10 +87,11 @@ public class PanelService2
         alarmControlPanel.add(new JLabel("Response:"));
         alarmControlPanel.add(scrollPane);
 
-        sendAlarmRequestButton = new JButton("Send Alarm Request");
-        sendAlarmRequestButton.setActionCommand("SEND_ALARM_REQUEST");
+        sendAlarmRequestButton = new JButton("Control Alarms");
+        sendAlarmRequestButton.setActionCommand("ALARM_CONTROL");
         sendAlarmRequestButton.addActionListener(listener);
         alarmControlPanel.add(sendAlarmRequestButton);
+        alarmControlPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
         //Creating a panel for the back button and centering it
         JPanel backButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -72,7 +100,8 @@ public class PanelService2
         backButton.addActionListener(listener);
         backButtonPanel.add(backButton);
 
-        //Combining the Panels        
+        //Combining the Panels    
+        panel.add(doorControlPanel);    
         panel.add(alarmControlPanel);
         panel.add(Box.createRigidArea(new Dimension(0, 10))); //Space between panels       
         panel.add(backButtonPanel); 
@@ -81,6 +110,23 @@ public class PanelService2
     }
 
     //Get methods 
+
+    // Get methods for Door Control
+    public JTextField getDoorOperationTypeField() {
+        return doorOperationTypeField;
+    }
+
+    public JTextField getDoorNumberField() {
+        return doorNumberField;
+    }
+
+    public JTextArea getDoorControlOutputArea() {
+        return doorControlOutputArea;
+    }
+
+    public JButton getSendDoorRequestButton() {
+        return sendDoorRequestButton;
+    }
     
     public JTextField getOperationTypeField() {
         return operationTypeField;

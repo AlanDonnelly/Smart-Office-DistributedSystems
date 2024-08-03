@@ -80,6 +80,9 @@ public class SmartOfficeController3 implements ActionListener
             case "START_STREAMING":
                 handleStartStreaming();
                 break;
+            case "STOP_STREAMING":
+                handleStopStreaming();
+                break;
             case "BACK_TO_MAIN_MENU":
                 handleBackToMainMenu(); //Handle back to main menu
                 break;
@@ -227,4 +230,12 @@ public class SmartOfficeController3 implements ActionListener
         });
         streamingThread.start();
     }
+    private void handleStopStreaming() 
+    {
+        if (requestObserver != null) {
+            requestObserver.onCompleted(); // Complete the current stream
+            requestObserver = null; // Clear the reference
+        }
+    }
+
 }

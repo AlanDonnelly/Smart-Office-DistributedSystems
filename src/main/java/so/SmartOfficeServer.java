@@ -6,6 +6,7 @@ import io.grpc.ServerBuilder;
 import so.service1.AirQualImpl;
 import so.service1.TempControlImpl;
 import so.service2.AlarmControlImpl;
+import so.service2.DoorControlImpl;
 import so.service1.LightingControlImpl;
 //Service 2 Imports
 
@@ -39,6 +40,7 @@ public class SmartOfficeServer
                 .addService(new LightingControlImpl()) //Add LightingControlImpl service
 
                 //Service 2:
+                .addService(new DoorControlImpl()) //Add DoorControlImpl service
                 .addService(new AlarmControlImpl()) //Add AlarmControlImpl service
 
                 //Service 3:

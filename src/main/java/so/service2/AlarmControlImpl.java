@@ -14,16 +14,16 @@ public class AlarmControlImpl extends AlarmControlGrpc.AlarmControlImplBase
         int alarmNumber = request.getAlarmNumber();
 
         //Validate alarm number is between 1 and 5
-    if (alarmNumber < 1 || alarmNumber > 5) 
-    {        
-        AlarmResponse response = AlarmResponse.newBuilder()
-                .setCurrentAlarmState("Alarm number must be between 1-5.") //Error message
-                .setNewAlarmState("unknown")
-                .build();
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
-        return;
-    }
+        if (alarmNumber < 1 || alarmNumber > 5) 
+        {        
+            AlarmResponse response = AlarmResponse.newBuilder()
+                    .setCurrentAlarmState("Alarm number must be between 1-5.") //Error message
+                    .setNewAlarmState("unknown")
+                    .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+            return;
+        }
 
         //Determine new alarm state based on operationType
         String newAlarmState;

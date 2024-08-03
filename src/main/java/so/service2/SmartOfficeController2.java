@@ -15,6 +15,7 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import so.client.MainMenu;
 import so.service2.AlarmControlGrpc.AlarmControlBlockingStub;
+import so.service2.DoorControlGrpc.DoorControlBlockingStub;
 
 public class SmartOfficeController2 implements ActionListener 
 {
@@ -61,13 +62,10 @@ public class SmartOfficeController2 implements ActionListener
                 break;
             case "DOOR_CONTROL":
                 handleDoorControl();
-                break;
+                break;            
             case "ALARM_CONTROL":
                 handleAlarmControl();
-                break;
-            case "SEND_ALARM_REQUEST":
-                handleAlarmControl(); 
-                break;
+                break;            
             case "BACK_TO_MAIN_MENU":
                 handleBackToMainMenu(); 
                 break;
@@ -93,11 +91,31 @@ public class SmartOfficeController2 implements ActionListener
         
     }
 
-    private void handleDoorControl() 
-    {
-        System.out.println("Service 2 Door Control...");
-       
+    private void handleDoorControl() {
+        try {
+            String operationType = panelService2.getDoorOperationTypeField().getText().trim();
+            int doorNumber = Integer.parseInt(panelService2.getDoorNumberField().getText().trim());
+
+            DoorRequest request = DoorRequest.newBuilder()
+                    .setOperationType(operationType)
+                    .setDoorNumber(doorNumber)
+                    .build();
+
+            DoorControlGrpc.DoorControlBlockingStub stub = DoorControlGrpc.newBlockingStub(channel);
+            DoorResponse response = stub.controlDoor(request);
+
+            panelService2.getDoorControlOutputArea().setText(
+                    "Current Door State: " + response.getCurrentDoorState() + "\n" +
+                    "New Door State: " + response.getNewDoorState()
+            );
+
+        } catch (NumberFormatException ex) {
+            System.err.println("Invalid door number. Please enter a valid number.");
+        } catch (StatusRuntimeException ex) {
+            System.err.println("RPC failed: " + ex.getStatus());
+        }
     }
+
 
     private void handleAlarmControl() 
     {
@@ -133,4 +151,5 @@ public class SmartOfficeController2 implements ActionListener
             System.err.println("RPC failed: " + ex.getStatus());                
         }
     }
+
 }

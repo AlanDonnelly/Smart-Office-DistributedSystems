@@ -25,6 +25,7 @@ public class PanelService3
     private JTextArea streamOutputArea;
     private JTextField streamWhiteboardNameField, streamContentField;
     private JButton startStreamButton;
+    private JButton stopStreamButton; 
     private JTextArea streamingUpdatesArea;
     private WhiteboardStreamGrpc.WhiteboardStreamStub streamStub;
     private JButton backButton; 
@@ -93,24 +94,26 @@ public class PanelService3
 
         contentPanel.setLayout(contentLayout);
 
-         //Streaming Panel
+         // Streaming Panel
         JPanel streamPanel = new JPanel();
-        BoxLayout streamLayout = new BoxLayout(streamPanel, BoxLayout.Y_AXIS);
+        FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT); // Horizontal alignment
+        streamPanel.setLayout(flowLayout);
 
         startStreamButton = new JButton("Start Streaming");
         startStreamButton.setActionCommand("START_STREAMING");
         startStreamButton.addActionListener(listener);
         streamPanel.add(startStreamButton);
-        streamPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+
+        JButton stopStreamButton = new JButton("Stop Streaming");
+        stopStreamButton.setActionCommand("STOP_STREAMING");
+        stopStreamButton.addActionListener(listener);
+        streamPanel.add(stopStreamButton);
 
         //Initialize streamingUpdatesArea
-        streamingUpdatesArea = new JTextArea(5, 10); //Adjust size as needed
+        streamingUpdatesArea = new JTextArea(5, 50); //Adjust size as needed
         streamingUpdatesArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(streamingUpdatesArea);
-        streamPanel.add(scrollPane);
-
-        streamPanel.setLayout(streamLayout);
-
+        streamPanel.add(scrollPane);        
         
         //Creating a panel for the back button and centering it
         JPanel backButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -174,6 +177,11 @@ public class PanelService3
     public JButton getStartStreamButton() 
     {
         return startStreamButton;
+    }
+
+    public JButton getStopStreamButton() // New method to get the stop stream button
+    {
+        return stopStreamButton;
     }
 
     public void setStreamStub(WhiteboardStreamGrpc.WhiteboardStreamStub streamStub) 
