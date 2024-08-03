@@ -33,7 +33,6 @@ private static final long serialVersionUID = 0L;
     if (extensionRegistry == null) {
       throw new java.lang.NullPointerException();
     }
-    @SuppressWarnings("unused")
     int mutable_bitField0_ = 0;
     com.google.protobuf.UnknownFieldSet.Builder unknownFields =
         com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -205,7 +204,6 @@ private static final long serialVersionUID = 0L;
     return result;
   }
 
-  @SuppressWarnings("unchecked")
   @java.lang.Override
   public int hashCode() {
     if (memoizedHashCode != 0) {

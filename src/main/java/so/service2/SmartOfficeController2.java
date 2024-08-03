@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.BoxLayout;
@@ -13,6 +14,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import so.client.MainMenu;
+import so.service2.AlarmControlGrpc.AlarmControlBlockingStub;
 
 public class SmartOfficeController2 implements ActionListener 
 {
@@ -63,8 +65,11 @@ public class SmartOfficeController2 implements ActionListener
             case "ALARM_CONTROL":
                 handleAlarmControl();
                 break;
+            case "SEND_ALARM_REQUEST":
+                handleAlarmControl(); 
+                break;
             case "BACK_TO_MAIN_MENU":
-                handleBackToMainMenu(); //Handle back to main menu
+                handleBackToMainMenu(); 
                 break;
             default:
                 System.out.println("Unknown action command: " + label);
@@ -74,14 +79,14 @@ public class SmartOfficeController2 implements ActionListener
 
     private void handleBackToMainMenu() {
         if (frame != null) {
-            frame.dispose(); // Close the current window
+            frame.dispose(); //Close the current window
         }
         SwingUtilities.invokeLater(() -> {
-            MainMenu.main(new String[0]); // Restart the main menu
+            MainMenu.main(new String[0]); //Restart the main menu
         });
     }
 
-    // Service 2 methods
+    //Service 2 methods
     private void handleCameraControl() 
     {
         System.out.println("Service 2 Camera Control...");
@@ -96,7 +101,36 @@ public class SmartOfficeController2 implements ActionListener
 
     private void handleAlarmControl() 
     {
-        System.out.println("Service 2 Alarm Control...");
-        
+        try 
+        {
+            //Get values from UI components
+            String operationType = panelService2.getOperationTypeField().getText().trim();
+            int alarmNumber = Integer.parseInt(panelService2.getAlarmNumberField().getText().trim());
+
+            //Prepare the request
+            AlarmRequest request = AlarmRequest.newBuilder()
+                    .setOperationType(operationType)
+                    .setAlarmNumber(alarmNumber)
+                    .build();
+
+            //Make the gRPC call
+            AlarmControlGrpc.AlarmControlBlockingStub stub = AlarmControlGrpc.newBlockingStub(channel);
+            AlarmResponse response = stub.controlAlarm(request);
+
+            //Display the response in the UI
+            panelService2.getAlarmControlOutputArea().setText(
+                    "Current Alarm State: " + response.getCurrentAlarmState() + "\n" +
+                    "New Alarm State: " + response.getNewAlarmState()
+            );
+
+        } 
+        catch (NumberFormatException ex) 
+        {
+            System.err.println("Invalid alarm number. Please enter a valid number.");             
+        } 
+        catch (StatusRuntimeException ex) 
+        {
+            System.err.println("RPC failed: " + ex.getStatus());                
+        }
     }
 }

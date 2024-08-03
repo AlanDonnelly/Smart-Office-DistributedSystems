@@ -14,19 +14,16 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 import io.grpc.stub.StreamObserver;
+import so.service2.AlarmControlGrpc;
 import so.service3.WhiteboardStreamGrpc;
-import so.service3.WhiteboardUpdate;
 
 public class PanelService2 
 {
 
-    private JTextField whiteboardTitleField, whiteboardReplyField; //Request and response text fields
-    private JTextField contentTitleField, addContentField, contentReplyField;
-    private JTextArea streamOutputArea;
-    private JTextField streamWhiteboardNameField, streamContentField;
-    private JButton startStreamButton;
-    private JTextArea streamingUpdatesArea;
-    private WhiteboardStreamGrpc.WhiteboardStreamStub streamStub;
+    private JTextField operationTypeField;
+    private JTextField alarmNumberField;   
+    private JButton sendAlarmRequestButton;
+    private JTextArea alarmControlOutputArea;
     private JButton backButton; 
 
     public JPanel createPanel(ActionListener listener) //Service 3 Panel
@@ -40,76 +37,33 @@ public class PanelService2
         panel.add(titleLabel);
         panel.add(Box.createRigidArea(new Dimension(0, 20))); //Adding space below the lable 
 
-        //Whiteboard Creation Panel
-        JPanel whiteboardPanel = new JPanel();
-        BoxLayout whiteboardLayout = new BoxLayout(whiteboardPanel, BoxLayout.X_AXIS);
+        //Camera Control
+        
 
-        JLabel createLabel = new JLabel("Enter Whiteboard Title:"); //Labling to show user to input a whiteboard title
-        whiteboardPanel.add(createLabel);
-        whiteboardPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        whiteboardTitleField = new JTextField("", 10); //Text field to enter title
-        whiteboardPanel.add(whiteboardTitleField);
-        whiteboardPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        //Door Control
+       
 
-        JButton createButton = new JButton("Create Whiteboard"); //Button to create whiteboard
-        createButton.setActionCommand("CREATE_WHITEBOARD");
-        createButton.addActionListener(listener);  //Setting ActionListener
-        whiteboardPanel.add(createButton);
-        whiteboardPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        // Alarm Control Panel
+        JPanel alarmControlPanel = new JPanel();
+        alarmControlPanel.setLayout(new BoxLayout(alarmControlPanel, BoxLayout.Y_AXIS));
 
-        whiteboardReplyField = new JTextField("", 20); //Reply field to show the Whiteboard title when create
-        whiteboardReplyField.setEditable(false); //Block editing capabilities of reply field
-        whiteboardPanel.add(whiteboardReplyField);
+        operationTypeField = new JTextField(10);
+        alarmNumberField = new JTextField(10);
+        alarmControlOutputArea = new JTextArea(5, 20);
+        alarmControlOutputArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(alarmControlOutputArea);
 
-        whiteboardPanel.setLayout(whiteboardLayout);
+        alarmControlPanel.add(new JLabel("Operation Type (startAlarm/stopAlarm):"));
+        alarmControlPanel.add(operationTypeField);
+        alarmControlPanel.add(new JLabel("Alarm Number:"));
+        alarmControlPanel.add(alarmNumberField);
+        alarmControlPanel.add(new JLabel("Response:"));
+        alarmControlPanel.add(scrollPane);
 
-        // Content Addition Panel
-        JPanel contentPanel = new JPanel();
-        BoxLayout contentLayout = new BoxLayout(contentPanel, BoxLayout.X_AXIS);
-
-        JLabel contentLabel = new JLabel("Enter Whiteboard Name:"); //Labling to show user to input a whiteboard title
-        contentPanel.add(contentLabel);
-        contentPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        contentTitleField = new JTextField("", 10); //Text field to enter title
-        contentPanel.add(contentTitleField);
-        contentPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-
-        JLabel addContentLabel = new JLabel("Enter Content:"); //Labling to show user to input whiteboard content
-        contentPanel.add(addContentLabel);
-        contentPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-        addContentField = new JTextField("", 10);
-        contentPanel.add(addContentField);
-        contentPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-
-        JButton addContentButton = new JButton("Add Content"); //Button to add content to whiteboard
-        addContentButton.setActionCommand("ADD_CONTENT");
-        addContentButton.addActionListener(listener);  //Setting ActionListener
-        contentPanel.add(addContentButton);
-        contentPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-
-        contentReplyField = new JTextField("", 20); //Reply field to show the Whiteboard name and content
-        contentReplyField.setEditable(false); //Block editing capabilities of reply field
-        contentPanel.add(contentReplyField);
-
-        contentPanel.setLayout(contentLayout);
-
-         //Streaming Panel
-        JPanel streamPanel = new JPanel();
-        BoxLayout streamLayout = new BoxLayout(streamPanel, BoxLayout.Y_AXIS);
-
-        startStreamButton = new JButton("Start Streaming");
-        startStreamButton.setActionCommand("START_STREAMING");
-        startStreamButton.addActionListener(listener);
-        streamPanel.add(startStreamButton);
-        streamPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-
-        //Initialize streamingUpdatesArea
-        streamingUpdatesArea = new JTextArea(5, 10); //Adjust size as needed
-        streamingUpdatesArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(streamingUpdatesArea);
-        streamPanel.add(scrollPane);
-
-        streamPanel.setLayout(streamLayout);
+        sendAlarmRequestButton = new JButton("Send Alarm Request");
+        sendAlarmRequestButton.setActionCommand("SEND_ALARM_REQUEST");
+        sendAlarmRequestButton.addActionListener(listener);
+        alarmControlPanel.add(sendAlarmRequestButton);
 
         //Creating a panel for the back button and centering it
         JPanel backButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -118,70 +72,30 @@ public class PanelService2
         backButton.addActionListener(listener);
         backButtonPanel.add(backButton);
 
-        //Combining the Panels
-        panel.add(whiteboardPanel);
-        panel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between panels
-        panel.add(contentPanel);
-        panel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between panels
-        panel.add(streamPanel);
+        //Combining the Panels        
+        panel.add(alarmControlPanel);
+        panel.add(Box.createRigidArea(new Dimension(0, 10))); //Space between panels       
         panel.add(backButtonPanel); 
 
         return panel;
     }
 
     //Get methods 
-    public JTextField getWhiteboardTitle() 
-    {
-        return whiteboardTitleField;
+    
+    public JTextField getOperationTypeField() {
+        return operationTypeField;
     }
 
-    public JTextField getWhiteboardReply() 
-    {
-        return whiteboardReplyField;
+    public JTextField getAlarmNumberField() {
+        return alarmNumberField;
     }
 
-    public JTextField getContentTitle() 
-    {
-        return contentTitleField;
+    public JTextArea getAlarmControlOutputArea() {
+        return alarmControlOutputArea;
     }
 
-    public JTextField getAddContent() 
+    public JButton getBackButton() 
     {
-        return addContentField;
-    }
-
-    public JTextField getContentReply() 
-    {
-        return contentReplyField;
-    }
-
-    public JTextArea getStreamOutputArea() 
-    {
-        return streamOutputArea;
-    }
-
-    public JTextField getStreamWhiteboardName() 
-    {
-        return streamWhiteboardNameField;
-    }
-
-    public JTextField getStreamContent() 
-    {
-        return streamContentField;
-    }
-
-    public JButton getStartStreamButton() 
-    {
-        return startStreamButton;
-    }
-
-    public void setStreamStub(WhiteboardStreamGrpc.WhiteboardStreamStub streamStub) 
-    {
-        this.streamStub = streamStub;
-    }
-
-    public JTextArea getStreamingUpdatesArea() 
-    {
-        return streamingUpdatesArea;
+        return backButton;
     }
 }
