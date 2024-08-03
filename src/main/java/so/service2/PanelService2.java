@@ -1,4 +1,4 @@
-package so.service3;
+package so.service2;
 
 import java.awt.Dimension;
 
@@ -19,7 +19,7 @@ import io.grpc.stub.StreamObserver;
 import so.service3.WhiteboardStreamGrpc;
 import so.service3.WhiteboardUpdate;
 
-public class PanelService3 
+public class PanelService2 
 {
 
     private JTextField whiteboardTitleField, whiteboardReplyField; //Request and response text fields
@@ -107,7 +107,6 @@ public class PanelService3
 
         streamPanel.setLayout(streamLayout);
 
-        
         //Back button
         backButton = new JButton("Back to Main Menu");
         backButton.setActionCommand("BACK_TO_MAIN_MENU");
