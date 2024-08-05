@@ -5,7 +5,7 @@ import io.grpc.stub.StreamObserver;
 public class AirQualImpl extends AirQualityControlGrpc.AirQualityControlImplBase 
 {
 
-    private int airQuality = 100; //Set dfault air quality value
+    private int airQuality = 10; //Set dfault air quality value
 
     @Override
     public void setAirQual(AirQualRequest request, StreamObserver<AirQualResponse> responseObserver) 

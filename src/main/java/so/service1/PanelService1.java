@@ -1,6 +1,7 @@
 package so.service1;
 
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.JPanel;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -128,18 +129,8 @@ public class PanelService1
         return operationTypeField.getText();
     }
 
-    public int getVentilationLevel() {
-        try {
-            int level = Integer.parseInt(ventilationLevelField.getText());
-            //Ensure ventilation level is between 1 and 10
-            if (level < 1 || level > 10) {
-                throw new NumberFormatException("Ventilation level must be between 1 and 10.");
-            }
-            return level;
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid ventilation level input. " + e.getMessage());
-            return 1; //Default value or handle as needed
-        }
+    public JTextField getVentilationLevelField() {
+        return ventilationLevelField;
     }
 
     public JTextField getAirQualReplyField() 
@@ -159,24 +150,10 @@ public class PanelService1
 
     //TemperatureControls Getters
 
-    public float getTempLevel() 
-    {
-        try 
-        {
-            float level = Float.parseFloat(tempLevelField.getText());
-            //Ensure temperature level is between 15 and 100
-            if (level < 15.0f || level > 100.0f) 
-            {
-                throw new NumberFormatException("Temperature level must be between 15 and 100.");
-            }
-            return level;
-        } 
-        catch (NumberFormatException e) 
-        {
-            System.err.println("Invalid temperature level input. " + e.getMessage());
-            return 30.0f; //Default 
-        }
+    public JTextField getTempLevelField() {
+        return tempLevelField;
     }
+
 
     public JTextField getTempReplyField() {
         return tempReplyField;
@@ -190,24 +167,9 @@ public class PanelService1
         return getTempButton;
     }
 
-//LightingControl Getters
-    public int getLightingLevel() 
-    {
-        try 
-        {
-            int level = Integer.parseInt(lightingLevelField.getText());
-            //Ensure lighting level is between 1 and 10
-            if (level < 1 || level > 10) 
-            {
-                throw new NumberFormatException("Lighting level must be between 1 and 10, setting to 1");
-            }
-            return level;
-        } 
-        catch (NumberFormatException e) 
-        {
-            System.err.println("Invalid lighting level input. " + e.getMessage());
-            return 1; //Default value
-        }
+    //LightingControl Getters
+    public JTextField getLightingLevelField() {
+        return lightingLevelField;
     }
 
     public JTextField getLightingReplyField() {

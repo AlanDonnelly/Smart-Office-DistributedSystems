@@ -93,8 +93,46 @@ public class SmartOfficeController1 implements ActionListener
     //Service 1 methods
     private void handleAirQualControl(boolean isSet) //Handle air quality control requests
     {
-        String operationType = isSet ? "SET" : "GET"; //Determine if we are setting or getting the air quality based on the isSet flag.
-        int ventilationLevel = isSet ? panelService1.getVentilationLevel() : 0; //Get the ventilation level if we are setting the air quality, otherwise use 0.
+        int ventilationLevel = 1; //Default ventilationLevel
+        String errorMessage = null;
+
+        //Getting text inpt from the panelService1
+        String ventilationLevelText = panelService1.getVentilationLevelField().getText().trim();
+
+        if (ventilationLevelText.isEmpty()) 
+        {
+            //If input is empty and setting ventilation level, show error
+            if (isSet) 
+            {
+                errorMessage = "Ventilation level must be between 1-10.";
+            }
+        } 
+        else 
+        {
+            try 
+            {
+                ventilationLevel = Integer.parseInt(ventilationLevelText);
+                
+                //Is the ventilationLevel between 1 and 10
+                if (ventilationLevel < 1 || ventilationLevel > 10) 
+                {
+                    errorMessage = "Ventilation level must be between 1-10.";
+                }
+            } 
+            catch (NumberFormatException e) 
+            {
+                errorMessage = "Invalid ventilation level input. " + e.getMessage();
+            }
+        }
+
+        if (errorMessage != null) 
+        {
+            panelService1.getAirQualReplyField().setText(errorMessage);
+            return;
+        }
+
+
+        String operationType = isSet ? "SET" : "GET"; //Determine if we are setting or getting the air quality based on the isSet flag.        
 
         AirQualRequest request = AirQualRequest.newBuilder() //Build the request object with the determined operation type and ventilation level.
                 .setOperationType(operationType)
@@ -115,8 +153,7 @@ public class SmartOfficeController1 implements ActionListener
             else if ("GET".equals(operationType)) // If "GET", the send a request to get the current air quality.
             {
                 response = blockingStub.getAirQual(request);
-                panelService1.getAirQualReplyField().setText("Current Air Quality: " + response.getCurrentAirQuality() + //Update UI to reflect the current air quality and vent level
-                                                            ", Ventilation Level: " + response.getNewVentilationLevel());
+                panelService1.getAirQualReplyField().setText("Current Air Quality: " + response.getCurrentAirQuality()); //Update UI to reflect the current air quality and vent level                                                 
             } 
             else 
             {
@@ -131,9 +168,44 @@ public class SmartOfficeController1 implements ActionListener
 
     private void handleTempControl(boolean isSet) //Handle temp control requests
     {
-        String operationType = isSet ? "SET" : "GET"; //Determine if we are setting or getting the temp based on the isSet flag.
-        float tempLevel = isSet ? panelService1.getTempLevel() : 0.0f; //Get the temp level if we are setting the temp, otherwise use 0.
-
+        float tempLevel = 18.8f; //Default tempeLevel
+        String errorMessage = null;
+    
+        String tempLevelText = panelService1.getTempLevelField().getText().trim();
+    
+        if (tempLevelText.isEmpty()) 
+        {
+            //If input is empty and setting temperature, show error message
+            if (isSet) 
+            {
+                errorMessage = "Temperature level must be between 15-100.";
+            }
+        } 
+        else 
+        {
+            try 
+            {
+                tempLevel = Float.parseFloat(tempLevelText);
+                
+                if (tempLevel < 15.0f || tempLevel > 100.0f) //Setting range for temperature
+                {
+                    errorMessage = "Temperature level must be between 15-100.";
+                }
+            } 
+            catch (NumberFormatException e) 
+            {
+                errorMessage = "Invalid temperature level input. " + e.getMessage();
+            }
+        }
+    
+        if (errorMessage != null) 
+        {
+            panelService1.getTempReplyField().setText(errorMessage);
+            return;
+        }
+    
+        String operationType = isSet ? "SET" : "GET"; //Determine if we are setting or getting the air quality based on the isSet flag.
+    
         TempRequest request = TempRequest.newBuilder()  //Build the request object with the determined operation type and temp level.
                 .setOperationType(operationType)
                 .setTempLevel(tempLevel)
@@ -141,7 +213,7 @@ public class SmartOfficeController1 implements ActionListener
         //Create a blocking stub to communicate with the gRPC server for temp control.
         TempControlGrpc.TempControlBlockingStub blockingStub = TempControlGrpc.newBlockingStub(channel);
         TempResponse response;
-
+    
         try 
         {
             if ("SET".equals(operationType)) //If "SET", then send a request to set the temp.
@@ -153,8 +225,7 @@ public class SmartOfficeController1 implements ActionListener
             else if ("GET".equals(operationType)) //If "GET", then send a request to get the temp.
             {
                 response = blockingStub.getTemp(request);
-                panelService1.getTempReplyField().setText("Current Temperature: " + response.getCurrentTemp() + //Update UI to reflect the current temp and temp level
-                                                          ", Temperature Level: " + response.getNewTempLevel());
+                panelService1.getTempReplyField().setText("Current Temperature: " + response.getCurrentTemp()); //Update UI to reflect the current temp and temp level                                                          
             } 
             else 
             {
@@ -169,7 +240,27 @@ public class SmartOfficeController1 implements ActionListener
 
     private void handleLightingControl() 
     {
-        int lightingLevel = panelService1.getLightingLevel(); //Get the current lighting level from panelService(UI)
+        int lightingLevel = 0;
+        String errorMessage = null;
+
+        try 
+        {
+            lightingLevel = Integer.parseInt(panelService1.getLightingLevelField().getText());
+            if (lightingLevel < 1 || lightingLevel > 10) 
+            {
+                throw new NumberFormatException("Lighting level must be between 1-10.");
+            }
+        } 
+        catch (NumberFormatException e) 
+        {
+            errorMessage = "Invalid lighting level input. " + e.getMessage();
+        }
+        
+        if (errorMessage != null) 
+        {
+            panelService1.getLightingReplyField().setText(errorMessage);
+            return;
+        }
     
         LightingRequest request = LightingRequest.newBuilder() //Build the request object with the lighting level to be set
                 .setLightingLevel(lightingLevel) //Set the lighting level
@@ -189,8 +280,9 @@ public class SmartOfficeController1 implements ActionListener
             System.err.println("RPC failed: " + ex.getStatus());
         }
     }
-    
-    
 }
+    
+    
+
     
 

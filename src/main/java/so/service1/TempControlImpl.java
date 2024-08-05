@@ -5,7 +5,7 @@ import io.grpc.stub.StreamObserver;
 public class TempControlImpl extends TempControlGrpc.TempControlImplBase 
 {
 
-    private float temp = 37.5f; //Default temperature value
+    private float temp = 18.8f; //Default temperature value
 
     @Override
     public void setTemp(TempRequest request, StreamObserver<TempResponse> responseObserver) 
@@ -36,7 +36,7 @@ public class TempControlImpl extends TempControlGrpc.TempControlImplBase
         //Build the response with the current temperature and a default value for tempLevel
         TempResponse response = TempResponse.newBuilder()
                 .setCurrentTemp(temp) //Set current temperature
-                .setNewTempLevel("37.5") //Set default value for temperature level
+                .setNewTempLevel("18.8") //Set default value for temperature level
                 .build();
 
         responseObserver.onNext(response); //Send response to client
