@@ -1,7 +1,14 @@
 package so.client;
 
+import java.io.IOException;
+
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceInfo;
+import javax.jmdns.ServiceListener;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.jmdns.JmDNS;
 import so.ServiceRegistrationJMDNS;
 import so.service1.SmartOfficeController1;
 import so.service2.SmartOfficeController2;
@@ -13,10 +20,14 @@ public class MainMenu
     private static SmartOfficeController1 service1Controller;
     private static SmartOfficeController2 service2Controller;
     private static SmartOfficeController3 service3Controller;
+    private static JmDNS jmdns;
 
 
     public static void main(String[] args) 
     {
+        //Start JmDNS for service discovery
+        jmdnsDiscovery();
+
         //Start the service registration manager
         registrationManagerJMDNS = new ServiceRegistrationJMDNS();        
         registerServices(); //Register services
@@ -78,6 +89,41 @@ public class MainMenu
         registrationManagerJMDNS.registerService("_smartoffice._tcp.local.", "EnvironmentService", 50051, "path=index.html");
         registrationManagerJMDNS.registerService("_smartoffice._tcp.local.", "SecurityService", 50052, "path=index.html");
         registrationManagerJMDNS.registerService("_smartoffice._tcp.local.", "WhiteboardService", 50053, "path=index.html");
+    }
+
+    private static void jmdnsDiscovery() 
+    {
+        try 
+        {
+            jmdns = JmDNS.create();
+            jmdns.addServiceListener("_smartoffice._tcp.local.", new ServiceDiscoveryListener());
+        } 
+        catch (IOException e) 
+        {
+            System.err.println("Couldn't start JmDNS for discovery: " + e.getMessage());
+        }
+    }
+
+    private static class ServiceDiscoveryListener implements ServiceListener 
+    {
+        @Override
+        public void serviceAdded(ServiceEvent event) 
+        {
+            System.out.println("Service added: " + event.getInfo());
+        }
+
+        @Override
+        public void serviceRemoved(ServiceEvent event) 
+        {
+            System.out.println("Service removed: " + event.getInfo());
+        }
+
+        @Override
+        public void serviceResolved(ServiceEvent event) 
+        {
+            ServiceInfo info = event.getInfo();
+            System.out.println("Service resolved: " + info);            
+        }
     }
 
     private static void closeServices() {
