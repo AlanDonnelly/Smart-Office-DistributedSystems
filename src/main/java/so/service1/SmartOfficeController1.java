@@ -12,7 +12,11 @@ import javax.swing.border.EmptyBorder;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+import so.ServiceRegistrationJMDNS;
 import so.client.MainMenu; 
+import javax.jmdns.ServiceInfo;
+import javax.jmdns.ServiceListener;
+import javax.jmdns.JmDNS;
 
 public class SmartOfficeController1 implements ActionListener 
 {
@@ -20,6 +24,8 @@ public class SmartOfficeController1 implements ActionListener
     private PanelService1 panelService1;
     private ManagedChannel channel;
     private JFrame frame; 
+    private ServiceRegistrationJMDNS registrationManagerJMDNS;
+    private ServiceInfo serviceInfo;
 
     public SmartOfficeController1() 
     {
@@ -27,6 +33,9 @@ public class SmartOfficeController1 implements ActionListener
         channel = ManagedChannelBuilder.forAddress("localhost", 50051)
                 .usePlaintext()
                 .build();
+
+        registrationManagerJMDNS = new ServiceRegistrationJMDNS();        
+        registrationManagerJMDNS.registerService("_smartoffice._tcp.local.", "EnvironmentService", 50051, "path=index.html");
     }
 
     public void build() 
@@ -253,7 +262,7 @@ public class SmartOfficeController1 implements ActionListener
         } 
         catch (NumberFormatException e) 
         {
-            errorMessage = "Invalid lighting level input. " + e.getMessage();
+            errorMessage = "Set lighting level between 1-10";
         }
         
         if (errorMessage != null) 
@@ -279,6 +288,12 @@ public class SmartOfficeController1 implements ActionListener
         {
             System.err.println("RPC failed: " + ex.getStatus());
         }
+    }
+
+    public void close() 
+    {
+        registrationManagerJMDNS.unregisterService(serviceInfo);
+        registrationManagerJMDNS.close();
     }
 }
     

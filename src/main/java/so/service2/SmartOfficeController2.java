@@ -16,7 +16,11 @@ import io.grpc.ManagedChannelBuilder;
 
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import javax.jmdns.ServiceListener;
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceInfo;
 
+import so.ServiceRegistrationJMDNS;
 import so.client.MainMenu;
 
 
@@ -27,13 +31,18 @@ public class SmartOfficeController2 implements ActionListener
     private ManagedChannel channel;
     private JFrame frame; 
     private StreamObserver<CameraFeed> responseObserver;    
+    private ServiceRegistrationJMDNS registrationManagerJMDNS;
+    private ServiceInfo serviceInfo;
 
     public SmartOfficeController2() 
     {
         panelService2 = new PanelService2();
-        channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+        channel = ManagedChannelBuilder.forAddress("localhost", 50052)
                 .usePlaintext()
                 .build();
+
+        registrationManagerJMDNS = new ServiceRegistrationJMDNS();        
+        registrationManagerJMDNS.registerService("_smartoffice._tcp.local.", "SecurityService", 50052, "path=index.html");
     }
 
     public void build() 
@@ -256,6 +265,12 @@ public class SmartOfficeController2 implements ActionListener
         {
             System.err.println("RPC failed: " + ex.getStatus());                
         }
+    }
+
+    public void close() 
+    {
+        registrationManagerJMDNS.unregisterService(serviceInfo);
+        registrationManagerJMDNS.close();
     }
 
 }

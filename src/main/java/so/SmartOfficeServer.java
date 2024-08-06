@@ -2,14 +2,16 @@ package so;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+
 //Service 1 Imports
 import so.service1.AirQualImpl;
 import so.service1.TempControlImpl;
+import so.service1.LightingControlImpl;
+
+//Service 2 Imports
 import so.service2.AlarmControlImpl;
 import so.service2.CameraControlImpl;
 import so.service2.DoorControlImpl;
-import so.service1.LightingControlImpl;
-//Service 2 Imports
 
 //Service 3 Imports
 import so.service3.WhiteboardContentImpl;
@@ -27,34 +29,42 @@ public class SmartOfficeServer
 
     public static void main(String[] args) 
     {
-        int port = 50051;
-
         try 
         {
         //Add Services to server
 
-            Server server = ServerBuilder.forPort(port)
+            Server service1Server = ServerBuilder.forPort(50051)
             
                 //Service 1:
                 .addService(new AirQualImpl()) //Add AirQualImpl service
                 .addService(new TempControlImpl()) //Add TempControlImpl service
                 .addService(new LightingControlImpl()) //Add LightingControlImpl service
-
+                .build();
+            
+            Server service2Server = ServerBuilder.forPort(50052)
                 //Service 2:
                 .addService(new CameraControlImpl()) //Add CameraControlImpl service
                 .addService(new DoorControlImpl()) //Add DoorControlImpl service
                 .addService(new AlarmControlImpl()) //Add AlarmControlImpl service
-
+                .build();
+            
+            Server service3Server = ServerBuilder.forPort(50053)
                 //Service 3:
                 .addService(new WhiteboardCreationImpl()) //Add Whiteboard Creaiton
                 .addService(new WhiteboardContentImpl()) //Add Whiteboard Content
                 .addService(new WhiteboardStreamImpl()) //Add Whiteboard Stream                
-                .build()
-                .start();
-    
-            logger.info("Server started, listening on " + port); //Confirmation message to show server is running
+                .build();
+                
+            // Start servers
+            service1Server.start();
+            service2Server.start();
+            service3Server.start();
+
+            logger.info("Servers started, listening on ports " + 50051 + ", " + 50052 + ", " + 50053);  //Confirmation message to show server is running           
            
-            server.awaitTermination(); // Run server until terminated
+            service1Server.awaitTermination();
+            service2Server.awaitTermination();
+            service3Server.awaitTermination(); // Run server until terminated
         } 
         catch (IOException | InterruptedException e) 
         {

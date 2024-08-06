@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.jmdns.ServiceInfo;
 import javax.swing.BoxLayout;
 import javax.swing.border.EmptyBorder;
 import javax.swing.SwingUtilities;
@@ -18,6 +19,7 @@ import so.service3.WhiteboardCreationGrpc;
 import so.service3.CreateWhiteboardRequest;
 import so.service3.CreateWhiteboardResponse;
 import so.service3.WhiteboardContentGrpc;
+import so.ServiceRegistrationJMDNS;
 import so.client.MainMenu;
 import so.service3.AddContentRequest;
 import so.service3.AddContentResponse;
@@ -35,15 +37,20 @@ public class SmartOfficeController3 implements ActionListener
     private StreamObserver<WhiteboardUpdate> requestObserver;
     private Thread streamingThread;
     private JFrame frame; 
+    private ServiceRegistrationJMDNS registrationManagerJMDNS;
+    private ServiceInfo serviceInfo;
 
     public SmartOfficeController3() 
     {
         panelService3 = new PanelService3();
-        channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+        channel = ManagedChannelBuilder.forAddress("localhost", 50053)
                 .usePlaintext()
                 .build();
         streamStub = WhiteboardStreamGrpc.newStub(channel);
         panelService3.setStreamStub(streamStub);
+
+        registrationManagerJMDNS = new ServiceRegistrationJMDNS();
+        registrationManagerJMDNS.registerService("_smartoffice._tcp.local.", "WhiteboardService", 50053, "path=index.html");
     }
 
     public void build() 
@@ -236,6 +243,12 @@ public class SmartOfficeController3 implements ActionListener
             requestObserver.onCompleted(); // Complete the current stream
             requestObserver = null; // Clear the reference
         }
+    }
+
+    public void close() 
+    {
+        registrationManagerJMDNS.unregisterService(serviceInfo);
+        registrationManagerJMDNS.close();
     }
 
 }
