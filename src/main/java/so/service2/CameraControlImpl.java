@@ -13,7 +13,7 @@ public class CameraControlImpl extends CameraControlGrpc.CameraControlImplBase
         System.out.println("Monitoring camera ID: " + cameraId); //Printing out the camera we are monitoring
 
         //Camera stream messages
-        for (int i = 0; i < 5; i++) //Set to 5
+        for (int i = 0; i < 6; i++) //Set to 5 for test, increase to test dealine error
         {
             byte[] dummyFeed = generateMockStream(cameraId, i); //creating streamdata
             CameraFeed feed = CameraFeed.newBuilder()

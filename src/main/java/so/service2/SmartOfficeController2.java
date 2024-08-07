@@ -3,6 +3,7 @@ package so.service2;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -124,8 +125,8 @@ public class SmartOfficeController2 implements ActionListener
             return;
         }
     
-        //Create a stub for the CameraControl service
-        CameraControlGrpc.CameraControlStub cameraControlStub = CameraControlGrpc.newStub(channel);
+        //Create a stub for the CameraControl service with a deadline
+        CameraControlGrpc.CameraControlStub cameraControlStub = CameraControlGrpc.newStub(channel).withDeadlineAfter(6, TimeUnit.SECONDS);
     
         //Create a response observer to handle camera feed
         responseObserver = new StreamObserver<CameraFeed>() 
@@ -144,14 +145,36 @@ public class SmartOfficeController2 implements ActionListener
             }
     
             @Override
-            public void onError(Throwable t) 
+        public void onError(Throwable t) 
+        {
+            if (t instanceof StatusRuntimeException) 
             {
-                System.err.println("Camera stream error: " + t.getMessage());
+                StatusRuntimeException statusException = (StatusRuntimeException) t;
+                if (statusException.getStatus().getCode() == io.grpc.Status.Code.DEADLINE_EXCEEDED) {
+                    System.err.println("Camera stream deadline exceeded: " + statusException.getMessage());
+                    SwingUtilities.invokeLater(() -> 
+                    {
+                        panelService2.getStreamingUpdatesArea().append("Camera stream deadline exceeded: " + statusException.getMessage() + "\n");
+                    });
+                } 
+                else 
+                {
+                    System.err.println("Camera stream error: " + statusException.getMessage());
+                    SwingUtilities.invokeLater(() -> 
+                    {
+                        panelService2.getStreamingUpdatesArea().append("Camera stream error: " + statusException.getMessage() + "\n");
+                    });
+                }
+            } 
+            else 
+            {
+                System.err.println("Unexpected error: " + t.getMessage());
                 SwingUtilities.invokeLater(() -> 
                 {
-                    panelService2.getStreamingUpdatesArea().append("Camera stream error: " + t.getMessage() + "\n"); //Printing to field
+                    panelService2.getStreamingUpdatesArea().append("Unexpected error: " + t.getMessage() + "\n");
                 });
             }
+        }
     
             @Override
             public void onCompleted() 
