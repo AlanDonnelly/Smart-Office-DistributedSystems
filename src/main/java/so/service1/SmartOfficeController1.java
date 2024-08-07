@@ -15,8 +15,6 @@ import io.grpc.StatusRuntimeException;
 import so.ServiceRegistrationJMDNS;
 import so.client.MainMenu; 
 import javax.jmdns.ServiceInfo;
-import javax.jmdns.ServiceListener;
-import javax.jmdns.JmDNS;
 
 public class SmartOfficeController1 implements ActionListener 
 {

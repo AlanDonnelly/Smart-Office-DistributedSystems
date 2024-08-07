@@ -8,7 +8,11 @@ import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import javax.jmdns.JmDNS;
+import grpc.auth.user.UserServiceGrpc;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
+import grpc.auth.user.LoginRequest;
+import grpc.auth.user.LoginResponse;
 import so.ServiceRegistrationJMDNS;
 import so.service1.SmartOfficeController1;
 import so.service2.SmartOfficeController2;
@@ -25,64 +29,112 @@ public class MainMenu
 
     public static void main(String[] args) 
     {
-        //Start JmDNS for service discovery
-        jmdnsDiscovery();
+        // Display login dialog
+        boolean isLoggedIn = userLogin();
 
-        //Start the service registration manager
-        registrationManagerJMDNS = new ServiceRegistrationJMDNS();        
-        registerServices(); //Register services
-
-        JOptionPane.showMessageDialog(null, "Welcome to your Smart Office");
-        JOptionPane.showMessageDialog(null, "Select the service you wish to manage");
-        String[] options = {"Environment System", "Security System", "Whiteboard System", "Close"};
-        int choice = JOptionPane.showOptionDialog(null, "SMART OFFICE SERVICE MENU",
-                "Main Menu",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.INFORMATION_MESSAGE,
-                null,
-                options,
-                options[0] //Default option
-        );
-
-        switch (choice) 
+        if (!isLoggedIn) 
         {
-            case 0:
-                //Start Service 1 Controller 
-                SwingUtilities.invokeLater(() -> 
-                {
-                    SmartOfficeController1 controller = new SmartOfficeController1();
-                    controller.build();
-                });
-                break;
-            case 1:
-                //Start Service 2 Controller
-                SwingUtilities.invokeLater(() -> 
-                {
-                    SmartOfficeController2 controller = new SmartOfficeController2();
-                    controller.build();
-                });
-                break;
-            case 2:
-                //Start Service 3 Controller
-                SwingUtilities.invokeLater(() -> 
-                {
-                    SmartOfficeController3 controller = new SmartOfficeController3();
-                    controller.build();
-                });
-                break;
-            case 3:
-                //Close the application
-                closeServices();
-                JOptionPane.showMessageDialog(null, "Shutting Down");
-                System.out.println("Shutting Down");
-                System.exit(0);
-                break;
-            default:
-                System.out.println("No valid option selected.");
-                break;
-                
+            JOptionPane.showMessageDialog(null, "Authentication failed. Exiting...");
+            System.exit(1);
+        } 
+        
+            //Start JmDNS for service discovery
+            jmdnsDiscovery();
+
+            //Start the service registration manager
+            registrationManagerJMDNS = new ServiceRegistrationJMDNS();        
+            registerServices(); //Register services
+
+            JOptionPane.showMessageDialog(null, "Welcome to your Smart Office");
+            JOptionPane.showMessageDialog(null, "Select the service you wish to manage");
+            String[] options = {"Environment System", "Security System", "Whiteboard System", "Close"};
+            int choice = JOptionPane.showOptionDialog(null, "SMART OFFICE SERVICE MENU",
+                    "Main Menu",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0] //Default option
+            );
+
+            switch (choice) 
+            {
+                case 0:
+                    //Start Service 1 Controller 
+                    SwingUtilities.invokeLater(() -> 
+                    {
+                        SmartOfficeController1 controller = new SmartOfficeController1();
+                        controller.build();
+                    });
+                    break;
+                case 1:
+                    //Start Service 2 Controller
+                    SwingUtilities.invokeLater(() -> 
+                    {
+                        SmartOfficeController2 controller = new SmartOfficeController2();
+                        controller.build();
+                    });
+                    break;
+                case 2:
+                    //Start Service 3 Controller
+                    SwingUtilities.invokeLater(() -> 
+                    {
+                        SmartOfficeController3 controller = new SmartOfficeController3();
+                        controller.build();
+                    });
+                    break;
+                case 3:
+                    //Close the application
+                    closeServices();
+                    JOptionPane.showMessageDialog(null, "Shutting Down");
+                    System.out.println("Shutting Down");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("No valid option selected.");
+                    break;
+                    
+            }           
+         
+
+    }
+
+    
+
+    private static boolean userLogin() 
+    {
+        String username = JOptionPane.showInputDialog("Enter username:"); //Prompt for user name (user)
+        String password = JOptionPane.showInputDialog("Enter password:"); //Prompt for user name (pass)
+    
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50050) //Setting up channel to authentication service om port 50050
+                .usePlaintext()
+                .build();
+    
+        UserServiceGrpc.UserServiceBlockingStub stub = UserServiceGrpc.newBlockingStub(channel); //Blocking stub to interact wth authentication service
+    
+        LoginRequest request = LoginRequest.newBuilder() //Login request with provided name and password
+                .setUsername(username) 
+                .setPassword(password)
+                .build();
+    
+        LoginResponse response;
+        try 
+        {
+            response = stub.login(request); //Send request and recive response
+            System.out.println("Received response: " + response.getResponseMessage());
+            return response.getResponseCode() == 200; //Was authentication successful? Return true otherwise return false
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            return false;
+        } 
+        finally 
+        {
+            channel.shutdown(); //Shutdown channel
         }
     }
+    
 
     private static void registerServices() 
     {       

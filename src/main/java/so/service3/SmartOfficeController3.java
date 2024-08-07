@@ -14,17 +14,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import so.service3.PanelService3;
-import so.service3.WhiteboardCreationGrpc;
-import so.service3.CreateWhiteboardRequest;
-import so.service3.CreateWhiteboardResponse;
-import so.service3.WhiteboardContentGrpc;
 import so.ServiceRegistrationJMDNS;
 import so.client.MainMenu;
-import so.service3.AddContentRequest;
-import so.service3.AddContentResponse;
-import so.service3.WhiteboardStreamGrpc;
-import so.service3.WhiteboardUpdate;
+
 
 public class SmartOfficeController3 implements ActionListener 
 {

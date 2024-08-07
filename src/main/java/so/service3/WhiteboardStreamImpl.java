@@ -1,8 +1,6 @@
 package so.service3;
 
 import io.grpc.stub.StreamObserver;
-import so.service3.WhiteboardStreamGrpc;
-import so.service3.WhiteboardUpdate;
 
 public class WhiteboardStreamImpl extends WhiteboardStreamGrpc.WhiteboardStreamImplBase 
 {

@@ -2,6 +2,7 @@ package so;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import grpc.auth.user.UserServiceImpl; 
 
 //Service 1 Imports
 import so.service1.AirQualImpl;
@@ -31,8 +32,17 @@ public class SmartOfficeServer
     {
         try 
         {
-        //Add Services to server
 
+        //Start authentication service
+            Server authServer = ServerBuilder.forPort(50050)
+                .addService(new UserServiceImpl()) //Use UserServiceImpl here                
+                .build();
+
+            //Message to show authentication service is running
+            logger.info("Authenticating on port 50050");
+                
+
+        //Add Services to server
             Server service1Server = ServerBuilder.forPort(50051)
             
                 //Service 1:
@@ -55,16 +65,18 @@ public class SmartOfficeServer
                 .addService(new WhiteboardStreamImpl()) //Add Whiteboard Stream                
                 .build();
                 
-            // Start servers
+            //Start servers
+            authServer.start();  //Start the authentication server
             service1Server.start();
             service2Server.start();
             service3Server.start();
 
-            logger.info("Servers started, listening on ports " + 50051 + ", " + 50052 + ", " + 50053);  //Confirmation message to show server is running           
+            logger.info("Servers started, listening on ports "+ 50050 + ", "+ 50051 + ", " + 50052 + ", " + 50053);  //Confirmation message to show server is running           
            
+            authServer.awaitTermination();
             service1Server.awaitTermination();
             service2Server.awaitTermination();
-            service3Server.awaitTermination(); // Run server until terminated
+            service3Server.awaitTermination(); //Run server until terminated
         } 
         catch (IOException | InterruptedException e) 
         {

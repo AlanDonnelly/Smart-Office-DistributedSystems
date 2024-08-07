@@ -17,8 +17,6 @@ import io.grpc.ManagedChannelBuilder;
 
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import javax.jmdns.ServiceListener;
-import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceInfo;
 
 import so.ServiceRegistrationJMDNS;
