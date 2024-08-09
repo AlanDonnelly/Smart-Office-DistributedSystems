@@ -8,13 +8,13 @@ public class WhiteboardCreationImpl extends WhiteboardCreationImplBase
     @Override
     public void createWhiteboard(CreateWhiteboardRequest request, StreamObserver<CreateWhiteboardResponse> responseObserver) 
     {
-        String whiteboardName = request.getNewWhiteboard();
+        String whiteboardName = request.getNewWhiteboard(); //Pull the whiteboard name from the request
         
-        CreateWhiteboardResponse response = CreateWhiteboardResponse.newBuilder()
+        CreateWhiteboardResponse response = CreateWhiteboardResponse.newBuilder() //Build a repsonse with the whiteboard name
                 .setWhiteboardName(whiteboardName)
                 .build();
         
-        responseObserver.onNext(response);
+        responseObserver.onNext(response); //Send to client
         responseObserver.onCompleted();
     }
 }

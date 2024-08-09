@@ -8,26 +8,21 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-import io.grpc.stub.StreamObserver;
-import so.service3.WhiteboardStreamGrpc;
-import so.service3.WhiteboardUpdate;
 
 public class PanelService3 
 {
 
     private JTextField whiteboardTitleField, whiteboardReplyField; //Request and response text fields
     private JTextField contentTitleField, addContentField, contentReplyField;
-    private JTextArea streamOutputArea;
-    private JTextField streamWhiteboardNameField, streamContentField;
+    private JTextArea streamOutputArea;    
     private JButton startStreamButton;
     private JButton stopStreamButton; 
     private JTextArea streamingUpdatesArea;
-    private WhiteboardStreamGrpc.WhiteboardStreamStub streamStub;
+    
     private JButton backButton; 
 
     public JPanel createPanel(ActionListener listener) //Service 3 Panel
@@ -64,7 +59,7 @@ public class PanelService3
 
         whiteboardPanel.setLayout(whiteboardLayout);
 
-        // Content Addition Panel
+        //Content Addition Panel
         JPanel contentPanel = new JPanel();
         BoxLayout contentLayout = new BoxLayout(contentPanel, BoxLayout.X_AXIS);
 
@@ -94,9 +89,9 @@ public class PanelService3
 
         contentPanel.setLayout(contentLayout);
 
-         // Streaming Panel
+         //Streaming Panel
         JPanel streamPanel = new JPanel();
-        FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT); // Horizontal alignment
+        FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT); //Horizontal alignment
         streamPanel.setLayout(flowLayout);
 
         startStreamButton = new JButton("Start Streaming");
@@ -110,7 +105,7 @@ public class PanelService3
         streamPanel.add(stopStreamButton);
 
         //Initialize streamingUpdatesArea
-        streamingUpdatesArea = new JTextArea(5, 50); //Adjust size as needed
+        streamingUpdatesArea = new JTextArea(5, 50); //Adjustable size as needed
         streamingUpdatesArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(streamingUpdatesArea);
         streamPanel.add(scrollPane);        
@@ -124,9 +119,9 @@ public class PanelService3
 
         //Combining the Panels
         panel.add(whiteboardPanel);
-        panel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between panels
+        panel.add(Box.createRigidArea(new Dimension(0, 10))); //Space between panels
         panel.add(contentPanel);
-        panel.add(Box.createRigidArea(new Dimension(0, 10))); // Space between panels
+        panel.add(Box.createRigidArea(new Dimension(0, 10))); //Space between panels
         panel.add(streamPanel);
         panel.add(backButtonPanel); 
 
@@ -164,29 +159,14 @@ public class PanelService3
         return streamOutputArea;
     }
 
-    public JTextField getStreamWhiteboardName() 
-    {
-        return streamWhiteboardNameField;
-    }
-
-    public JTextField getStreamContent() 
-    {
-        return streamContentField;
-    }
-
     public JButton getStartStreamButton() 
     {
         return startStreamButton;
     }
 
-    public JButton getStopStreamButton() // New method to get the stop stream button
+    public JButton getStopStreamButton() 
     {
         return stopStreamButton;
-    }
-
-    public void setStreamStub(WhiteboardStreamGrpc.WhiteboardStreamStub streamStub) 
-    {
-        this.streamStub = streamStub;
     }
 
     public JTextArea getStreamingUpdatesArea() 

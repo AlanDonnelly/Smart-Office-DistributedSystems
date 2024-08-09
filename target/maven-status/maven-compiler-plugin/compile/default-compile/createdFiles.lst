@@ -55,6 +55,7 @@ grpc\auth\user\UserServiceGrpc$UserServiceStub.class
 so\service1\LightingControlGrpc$LightingControlBlockingStub.class
 so\service2\AlarmControlGrpc$1.class
 so\service3\WhiteboardStreamGrpc$WhiteboardStreamFileDescriptorSupplier.class
+so\client\MainMenu$1.class
 so\service2\Service2Impl.class
 grpc\auth\user\LogoutResponse.class
 grpc\auth\user\Empty$1.class
@@ -98,9 +99,11 @@ so\service2\AlarmControlGrpc$AlarmControlImplBase.class
 so\service3\WhiteboardUpdateOrBuilder.class
 grpc\auth\user\EmptyOrBuilder.class
 grpc\auth\user\UserServiceGrpc$UserServiceBaseDescriptorSupplier.class
+so\service2\DoorControlGrpc$1.class
 grpc\auth\user\LoginRequest$Builder.class
 so\service2\AlarmControlGrpc$AlarmControlStub.class
 so\service3\SmartOfficeController3.class
+so\service3\WhiteboardStreamGrpc$1.class
 so\service2\CameraRequest$Builder.class
 so\service1\TempControlGrpc$TempControlStub.class
 so\service2\AlarmResponse$Builder.class

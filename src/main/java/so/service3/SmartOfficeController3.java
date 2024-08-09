@@ -38,8 +38,7 @@ public class SmartOfficeController3 implements ActionListener
         channel = ManagedChannelBuilder.forAddress("localhost", 50053)
                 .usePlaintext()
                 .build();
-        streamStub = WhiteboardStreamGrpc.newStub(channel);
-        panelService3.setStreamStub(streamStub);
+        streamStub = WhiteboardStreamGrpc.newStub(channel);        
 
         registrationManagerJMDNS = new ServiceRegistrationJMDNS();
         registrationManagerJMDNS.registerService("_smartoffice._tcp.local.", "WhiteboardService", 50053, "path=index.html");
@@ -158,9 +157,7 @@ public class SmartOfficeController3 implements ActionListener
 
     private void handleStartStreaming() 
     {
-        System.out.println("Starting streaming...");
-        //Creating a streaming stub
-        WhiteboardStreamGrpc.WhiteboardStreamStub streamStub = WhiteboardStreamGrpc.newStub(channel);
+        System.out.println("Starting streaming...");        
 
         //Check if streamStub is initialized
         if (requestObserver == null) {
@@ -174,7 +171,7 @@ public class SmartOfficeController3 implements ActionListener
                     System.out.println(updateText);
 
                     SwingUtilities.invokeLater(() -> 
-                    { //Update GUI on EDT
+                    { 
                         //Update to the streaming panel
                         panelService3.getStreamingUpdatesArea().append(updateText + "\n");
                     });
