@@ -95,7 +95,7 @@ public class PanelService2
         doorControlPanel.add(Box.createRigidArea(new Dimension(0, 20)));
        
 
-        // Alarm Control Panel
+        //Alarm Control Panel
         JPanel alarmControlPanel = new JPanel();
         alarmControlPanel.setLayout(new BoxLayout(alarmControlPanel, BoxLayout.Y_AXIS));
 
@@ -137,7 +137,7 @@ public class PanelService2
 
     //Get methods 
 
-    // Getter for Camera Control
+    //Getter for Camera Control
     public JTextField getCameraNumberField() {
         return cameraNumberField;
     }
@@ -145,7 +145,7 @@ public class PanelService2
         return streamingUpdatesArea;
     }
 
-    // Get methods for Door Control
+    //Get methods for Door Control
     public JTextField getDoorOperationTypeField() {
         return doorOperationTypeField;
     }
@@ -157,11 +157,8 @@ public class PanelService2
     public JTextArea getDoorControlOutputArea() {
         return doorControlOutputArea;
     }
-
-    public JButton getSendDoorRequestButton() {
-        return sendDoorRequestButton;
-    }
     
+    //Get methods for Alarm Control
     public JTextField getOperationTypeField() {
         return operationTypeField;
     }

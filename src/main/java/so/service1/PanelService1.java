@@ -11,8 +11,6 @@ import java.awt.event.ActionListener;
 
 public class PanelService1 
 {
-
-    private JTextField operationTypeField;
     private JTextField ventilationLevelField;
     private JTextField airQualReplyField;
     private JTextField tempLevelField;
@@ -122,11 +120,7 @@ public class PanelService1
         return panel;
     }
 
-    //Getters
-    public String getOperationType() 
-    {
-        return operationTypeField.getText();
-    }
+    //Getters AirQual   
 
     public JTextField getVentilationLevelField() {
         return ventilationLevelField;
@@ -137,33 +131,14 @@ public class PanelService1
         return airQualReplyField;
     }
 
-    public JButton getSetAirQualButton() 
-    {
-        return setAirQualButton;
-    }
-
-    public JButton getGetAirQualButton() 
-    {
-        return getAirQualButton;
-    }
-
     //TemperatureControls Getters
 
     public JTextField getTempLevelField() {
         return tempLevelField;
     }
 
-
     public JTextField getTempReplyField() {
         return tempReplyField;
-    }
-
-    public JButton getSetTempButton() {
-        return setTempButton;
-    }
-
-    public JButton getGetTempButton() {
-        return getTempButton;
     }
 
     //LightingControl Getters
@@ -173,10 +148,6 @@ public class PanelService1
 
     public JTextField getLightingReplyField() {
         return lightingReplyField;
-    }
-
-    public JButton getSetLightingButton() {
-        return setLightingButton;
     }
 }
 

@@ -52,7 +52,7 @@ public class SmartOfficeController2 implements ActionListener
         JPanel panel = new JPanel(); //Setting up the panel to hold the UI components
         BoxLayout boxLayout = new BoxLayout(panel, BoxLayout.Y_AXIS); //Creating the vertical axis layout for the components
         panel.setLayout(boxLayout);
-        panel.setBorder(new EmptyBorder(new Insets(50, 100, 50, 100))); // Create a border for the panel
+        panel.setBorder(new EmptyBorder(new Insets(50, 100, 50, 100))); //Create a border for the panel
         panel.add(panelService2.createPanel(this)); //Pass "this" as ActionListener
 
         frame.setSize(500, 300); //Adjust frame size as needed
@@ -149,10 +149,10 @@ public class SmartOfficeController2 implements ActionListener
             {
                 StatusRuntimeException statusException = (StatusRuntimeException) t;
                 if (statusException.getStatus().getCode() == io.grpc.Status.Code.DEADLINE_EXCEEDED) {
-                    System.err.println("Camera stream deadline exceeded: " + statusException.getMessage());
+                    System.err.println("Camera stream deadline exceeded: " + statusException.getMessage()); //If deadline exceeds, throw error
                     SwingUtilities.invokeLater(() -> 
                     {
-                        panelService2.getStreamingUpdatesArea().append("Camera stream deadline exceeded: " + statusException.getMessage() + "\n");
+                        panelService2.getStreamingUpdatesArea().append("Camera stream deadline exceeded: " + statusException.getMessage() + "\n"); //Update with error to the panel
                     });
                 } 
                 else 
@@ -217,17 +217,18 @@ public class SmartOfficeController2 implements ActionListener
     {
         try 
         {
+            //Get values from UI components
             String operationType = panelService2.getDoorOperationTypeField().getText().trim();
             int doorNumber = Integer.parseInt(panelService2.getDoorNumberField().getText().trim());
-
+            //Prepare the request
             DoorRequest request = DoorRequest.newBuilder()
                     .setOperationType(operationType)
                     .setDoorNumber(doorNumber)
                     .build();
-
+            //Make the gRPC call
             DoorControlGrpc.DoorControlBlockingStub stub = DoorControlGrpc.newBlockingStub(channel);
             DoorResponse response = stub.controlDoor(request);
-
+            //Display the response in the UI
             panelService2.getDoorControlOutputArea().setText(
                     "Current Door State: " + response.getCurrentDoorState() + "\n" +
                     "New Door State: " + response.getNewDoorState()
