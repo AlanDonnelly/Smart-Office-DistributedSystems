@@ -10,41 +10,43 @@ public class UserServiceImpl extends UserServiceImplBase
     @Override
     public void login(LoginRequest request, StreamObserver<LoginResponse> responseObserver) 
     {
+        //Pull the user name and password from the request
         String username = request.getUsername();
         String password = request.getPassword();
 
         LoginResponse.Builder response = LoginResponse.newBuilder();
         
-        if ("user".equals(username) && "pass".equals(password)) 
+        if ("user".equals(username) && "pass".equals(password)) //Check to see if username, password match the set values.
         {
-            // return Success response
+            //Return Success response
             response.setResponseCode(200)
-                    .setResponseMessage(username + ".....Successfully logged in");
+                    .setResponseMessage(username + " successfully logged in");
         } 
         else 
         {
-            // return Failure response
+            //Return Failure response
             response.setResponseCode(401)
-                    .setResponseMessage(username + "... Sorry Login Failed");
+                    .setResponseMessage(username + " sorry login Failed");
         }
 
-        responseObserver.onNext(response.build());
-        responseObserver.onCompleted();
+        responseObserver.onNext(response.build()); //Send response to client
+        responseObserver.onCompleted(); 
     }
 
     @Override
     public void logout(LogoutRequest request, StreamObserver<LogoutResponse> responseObserver) 
     {
+        //Pull the user name from the request
         String username = request.getUsername();
 
         LogoutResponse.Builder response = LogoutResponse.newBuilder();
         System.out.println("Logging out username = " + username);
 
-        // For simplicity, assume logout is always successful
+        //For simplicity, we assume logout is always successful
         response.setResponseCode(200)
-                .setResponseMessage(username + ".....Successfully logged out");
+                .setResponseMessage(username + " successfully logged out");
 
-        responseObserver.onNext(response.build());
+        responseObserver.onNext(response.build()); //Send response to client
         responseObserver.onCompleted();
     }
 }

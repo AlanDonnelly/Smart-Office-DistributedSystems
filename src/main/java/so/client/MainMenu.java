@@ -20,6 +20,9 @@ import so.service3.SmartOfficeController3;
 
 public class MainMenu 
 {
+    private static boolean isLoggedIn = false; //Track if user is logged in already to stop repeat log in requests 
+    private static boolean servicesRegistered = false; //Track if services are already registered to stop repeat registration everytime user reurtn to menu
+
     private static ServiceRegistrationJMDNS registrationManagerJMDNS;
     private static SmartOfficeController1 service1Controller;
     private static SmartOfficeController2 service2Controller;
@@ -29,8 +32,11 @@ public class MainMenu
 
     public static void main(String[] args) 
     {
-        // Display login dialog
-        boolean isLoggedIn = userLogin();
+        //If user isn't logged in, present login
+        if (!isLoggedIn) 
+        {
+            isLoggedIn = userLogin(); 
+        }
 
         if (!isLoggedIn) 
         {
@@ -38,12 +44,17 @@ public class MainMenu
             System.exit(1);
         } 
         
-            //Start JmDNS for service discovery
-            jmdnsDiscovery();
-
             //Start the service registration manager
-            registrationManagerJMDNS = new ServiceRegistrationJMDNS();        
-            registerServices(); //Register services
+            registrationManagerJMDNS = new ServiceRegistrationJMDNS();  
+            //Start JmDNS for service discovery
+            jmdnsDiscovery();  
+
+            //Register services only once
+            if (!servicesRegistered) 
+            {
+                registerServices();
+                servicesRegistered = true;
+            }
 
             JOptionPane.showMessageDialog(null, "Welcome to your Smart Office");
             JOptionPane.showMessageDialog(null, "Select the service you wish to manage");
@@ -97,9 +108,7 @@ public class MainMenu
             }           
          
 
-    }
-
-    
+    }    
 
     private static boolean userLogin() 
     {
